@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Card Grid with Modal (Spoonacular)</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    /* -------- Grid -------- */
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: flex-start;
+    }
+
+    .card {
+      width: 220px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .card img {
+      width: 100%;
+      border-radius: 6px;
+    }
+
+    .card button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* -------- Modal -------- */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      width: 500px;
+      max-width: 90%;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 8px;
+
+      max-height: 70vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .close {
+      position: absolute;
+      right: 12px;
+      top: 8px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Recipe Search</h2>
+<input id="searchBox" placeholder="Enter food (ex: chicken)">
+<button onclick="searchRecipes()">Search</button>
+
+<!-- Cards -->
+<div class="card-container" id="cardContainer"></div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">×</span>
+    <h3 id="modalTitle"></h3>
+    <img id="modalImage" style="width:100%">
+    <h4>Ingredients</h4>
+    <ul id="modalIngredients"></ul>
+    <h4>Instructions</h4>
+    <div id="modalText"></div>
+    <h4>Rating</h4>
+    <select id="starRating">
+      <option value="0">0 - No Rating</option>
+      <option value="1">1 Star</option>
+      <option value="2">2 Stars</option>
+      <option value="3">3 Stars</option>
+      <option value="4">4 Stars</option>
+      <option value="5">5 Stars</option>
+    </select>
+    <br><br>
+    
+    <button onclick="saveRecipe()">Save Recipe</button>
+
+  </div>
+</div>
+
+<script>
+const apiKey = "9d6176d44ca441b59f4e89e2efc59118";
+const cardContainer = document.getElementById("cardContainer");
+const modal = document.getElementById("modal");
+const modalTitle = document.getElementById("modalTitle");
+const modalText = document.getElementById("modalText");
+const modalImage = document.getElementById("modalImage");
+const modalIngredients = document.getElementById("modalIngredients");
+const starRating = document.getElementById("starRating");
+
+let allRecipes = [];
+
+let activeCard = null;
+
+/* -------- Search Recipes -------- */
+async function searchRecipes() {
+  const q = document.getElementById("searchBox").value;
+
+  const res = await fetch(
+    `https://api.spoonacular.com/recipes/complexSearch?apiKey=${apiKey}&query=${encodeURIComponent(q)}&number=8`
+  );
+
+  const data = await res.json();
+  cardContainer.innerHTML = "";
+
+  data.results.forEach(r => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <img src="${r.image}">
+      <h3>${r.title}</h3>
+      <button>Open</button>
+    `;
+
+    card.querySelector("button").onclick = () => openModal(r.id);
+    cardContainer.appendChild(card);
+  });
+}
+
+/* -------- Modal Logic -------- */
+async function openModal(id) {
+  starRating.value = "0";
+  activeCard = id;
+
+  const res = await fetch(
+    `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`
+  );
+
+  const recipe = await res.json();
+
+  modalTitle.textContent = recipe.title;
+  modalImage.src = recipe.image;
+
+  modalIngredients.innerHTML = "";
+  recipe.extendedIngredients.forEach(i => {
+    const li = document.createElement("li");
+    li.textContent = i.original;
+    modalIngredients.appendChild(li);
+  });
+
+  modalText.innerHTML = recipe.instructions || "No instructions available.";
+
+  modal.style.display = "block";
+}
+
+function closeModal() {
+  modal.style.display = "none";
+}
+
+window.onclick = function (e) {
+  if (e.target === modal) closeModal();
+};
+
+/* -------- Load Recipes From JSONBin -------- */
+async function loadRecipes() {
+  const res = await fetch("getJSONData.php");
+  allRecipes = await res.json();
+}
+
+/* -------- Save Recipe -------- */
+async function saveRecipe() {
+
+  await loadRecipes();
+
+  const recipe = {
+    recipePhoto: `<img src="${modalImage.src}">`,
+    recipeID: modalTitle.textContent,
+    ingredients: [...modalIngredients.children]
+      .map(li => li.textContent)
+      .join("\n"),
+    instructions: modalText.innerHTML,
+    star: parseInt(starRating.value)
+  };
+
+  allRecipes.push(recipe);
+
+  await fetch("putJSONData.php", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(allRecipes)
+  });
+
+  alert("Recipe Saved!");
+  closeModal();
+}
+</script>
+
+</body>
+</html>
