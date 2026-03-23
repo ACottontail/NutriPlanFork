@@ -1,0 +1,75 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Home - NutriPlan</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+        <div class="back-button" onclick="goBack()">←</div>
+        <div class="home-container">
+
+  <div class="home-container">
+    <h1>Home</h1>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <input type="text" placeholder="Search for recipes" />
+    </div>
+
+    <!-- Recipe Cards -->
+
+    <div class="recipes">
+
+        <a href="recipe.html">
+      <div class="recipe-card">
+        <p><strong>Title</strong></p>
+        <p>Calories</p>
+
+       <!-- Saved Button -->
+        <button onclick="event.stopPropagation(); saveRecipe('Title', 200)">
+            Save
+        </button>
+      </div>
+
+      <a href="recipe.html">
+      <div class="recipe-card">
+        <p><strong>Title</strong></p>
+        <p>Calories</p>
+
+        <!-- Saved Button -->
+        <button onclick="event.stopPropagation(); saveRecipe('Title', 200)">
+            Save
+        </button>
+      </div>
+
+      <a href="recipe.html">
+      <div class="recipe-card">
+        <p><strong>Title</strong></p>
+        <p>Calories</p>
+        
+        <!-- Saved Button -->
+        <button onclick="event.stopPropagation(); saveRecipe('Title', 200)">
+            Save
+        </button>
+      </div>
+    </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+
+</body>
+</html>

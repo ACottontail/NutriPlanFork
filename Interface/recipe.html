@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recipe - NutriPlan</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- Back Button -->
+  <div class="back-button" onclick="goBack()">←</div>
+
+  <div class="home-container">
+    <h1>Recipe Title</h1>
+
+    <div class="image-box">
+      <img src="images/welcome.jpg">
+    </div>
+
+    <p><strong>Calories:</strong> 250</p>
+    <p><strong>Protein:</strong> 10g</p>
+    <p><strong>Carbs:</strong> 30g</p>
+
+    <h2>Ingredients</h2>
+    <ul>
+      <li>Ingredient 1</li>
+      <li>Ingredient 2</li>
+    </ul>
+
+    <h2>Instructions</h2>
+    <p>Step-by-step instructions here...</p>
+  </div>
+
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+
+</body>
+</html>
