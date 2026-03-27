@@ -11,7 +11,6 @@ body {
   }
 
   h1 {
-    color: #2e7d32; /* example: nice green, change to any hex color */
   }
   
   /* center everything */
@@ -22,7 +21,6 @@ body {
     height: 100vh;
   }
   
-  /* glass card */
   .card {
     width: 500px;
     padding: 25px;
@@ -36,7 +34,7 @@ body {
     text-align: center;
   }
   
-  /* image box */
+  /* image box - welcome.html */
   .image-box {
     margin: 20px 0;
     padding: 0;
@@ -106,7 +104,7 @@ body {
   margin-top: 30px;
 }
 
-/* Smaller cards (reuse your glass style idea) */
+/* Smaller cards */
 .recipe-card {
   width: 160px;
   padding: 15px;
@@ -116,33 +114,6 @@ body {
   backdrop-filter: blur(12px);
 
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-}
-
-/* Category section */
-.categories {
-  margin-top: 50px;
-}
-
-.category-row {
-  display: flex;
-  justify-content: center;
-  gap: 25px;
-  margin-top: 15px;
-}
-
-.category-item {
-  text-align: center;
-}
-
-.category-box {
-  width: 70px;
-  height: 70px;
-  border-radius: 15px;
-
-  background: rgba(255,255,255,0.55);
-  backdrop-filter: blur(10px);
-
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
 }
 
 .back-button {
