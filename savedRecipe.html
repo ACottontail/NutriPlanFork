@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Saved Recipe</title>
+<style>
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #e8fdfc, #dffcf4, #c8f7dc);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
+    color: #2e7d32;
+    margin-top: 20px;
+    text-align: center;
+}
+
+button {
+    margin: 10px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    background-color: #669a7d;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#deleteButton {
+    background-color: #e53935; /* red for delete */
+}
+
+#recipeImage {
+    width: 80%;
+    max-width: 500px;
+    border-radius: 15px;
+    margin: 15px 0;
+}
+
+ul {
+    text-align: left;
+    max-width: 500px;
+}
+
+#instructions {
+    max-width: 500px;
+    margin: 15px 0;
+}
+
+select {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 8px;
+}
+</style>
+</head>
+<body>
+
+<h2 id="recipeTitle"></h2>
+
+<div>
+    <button id="backButton" onclick="window.history.back()">Back</button>
+    <button id="deleteButton">Delete</button>
+</div>
+
+<img id="recipeImage" src="" alt="Recipe Image">
+<h3>Ingredients</h3>
+<ul id="ingredientsList"></ul>
+
+<h3>Instructions</h3>
+<div id="instructions"></div>
+
+<h3>Rating</h3>
+<select id="starRating">
+    <option value="0">0 - No Rating</option>
+    <option value="1">1 Star</option>
+    <option value="2">2 Stars</option>
+    <option value="3">3 Stars</option>
+    <option value="4">4 Stars</option>
+    <option value="5">5 Stars</option>
+</select>
+
+<script>
+
+let currentIndex = null; 
+
+async function loadSavedRecipes() {
+    try {
+        const res = await fetch("getJSONData.php");
+        const data = await res.json();
+        return data.record?.recipes || [];
+    } catch (err) {
+        console.warn("Could not fetch saved recipes.", err);
+        return [];
+    }
+}
+
+async function displaySavedRecipe() {
+    const params = new URLSearchParams(window.location.search);
+    currentIndex = parseInt(params.get('index'), 10);
+
+    const allRecipes = await loadSavedRecipes();
+    if (!allRecipes[currentIndex]) {
+        document.getElementById("recipeTitle").textContent = "Recipe not found!";
+        document.getElementById("deleteButton").disabled = true;
+        return;
+    }
+
+    const r = allRecipes[currentIndex];
+    document.getElementById("recipeTitle").textContent = r.recipeID;
+
+    const srcMatch = r.recipePhoto.match(/src="(.*?)"/);
+    document.getElementById("recipeImage").src = srcMatch ? srcMatch[1] : "";
+
+    const ingredientsList = document.getElementById("ingredientsList");
+    ingredientsList.innerHTML = "";
+    r.ingredients.split("\n").forEach(i => {
+        const li = document.createElement("li");
+        li.textContent = i;
+        ingredientsList.appendChild(li);
+    });
+
+    document.getElementById("instructions").innerHTML = r.instructions;
+    document.getElementById("starRating").value = r.star;
+}
+
+//Placeholder for delete functionality
+document.getElementById("deleteButton").addEventListener("click", () => {
+    const recipeTitle = document.getElementById("recipeTitle").textContent;
+
+    if (!recipeTitle) return;
+
+});
+
+displaySavedRecipe();
+</script>
+
+</body>
+</html>

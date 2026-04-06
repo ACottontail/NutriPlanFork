@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Saved Recipes</title>
+<style>
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #e8fdfc, #dffcf4, #c8f7dc);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
+    color: #2e7d32;
+    margin-top: 30px;
+    font-size: 32px;
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    margin: 20px;
+}
+
+.card {
+    width: 300px;
+    padding: 20px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+.card button {
+    margin-top: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px;
+    background-color: #669a7d;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#backButton {
+    margin: 10px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    background-color: #669a7d;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<h2>Saved Recipes</h2>
+<button id="backButton" onclick="window.history.back()">Back</button>
+
+<div class="card-container" id="savedContainer"></div>
+
+<script>
+
+async function loadSavedRecipes() {
+    try {
+        const res = await fetch("getJSONData.php");
+        const data = await res.json();
+        return data.record?.recipes || [];
+    } catch (err) {
+        console.warn("Could not fetch saved recipes.", err);
+        return [];
+    }
+}
+
+async function displaySavedRecipes() {
+    const allRecipes = await loadSavedRecipes();
+    const container = document.getElementById("savedContainer");
+    container.innerHTML = "";
+
+    if (!allRecipes.length) {
+        container.innerHTML = "<p>No saved recipes.</p>";
+        return;
+    }
+
+    allRecipes.forEach((r, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            ${r.recipePhoto}
+            <h3>${r.recipeID}</h3>
+            <p><strong>Rating:</strong> ${r.star} ⭐</p>
+            <button onclick="viewSavedRecipe(${index})">View</button>
+        `;
+        container.appendChild(card);
+    });
+}
+
+function viewSavedRecipe(index) {
+    window.location.href = `savedRecipe.html?index=${index}`;
+}
+
+displaySavedRecipes();
+
+</script>
+
+</body>
+</html>

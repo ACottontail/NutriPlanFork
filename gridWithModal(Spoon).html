@@ -6,11 +6,52 @@
 
   <style>
     body {
-      font-family: system-ui, sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
 
+    background: linear-gradient(135deg, #e8fdfc, #dffcf4, #c8f7dc);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  h2 {
+    color: #2e7d32;
+    margin-top: 30px;
+    font-size: 32px;
+  }
+  
+    /* Top controls */
+  input, button {
+    margin: 10px;
+  }
+
+  #searchBox {
+    padding: 12px;
+    width: 250px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    background-color: #669a7d;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+.image-box img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+}
+  
     /* -------- Grid -------- */
     .card-container {
       display: flex;
@@ -20,27 +61,39 @@
     }
 
     .card {
-      width: 220px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 16px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+    width: 500px;
+    padding: 25px;
+    border-radius: 20px;
+  
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(15px);
+  
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  
+    text-align: center;
+  }
 
     .card img {
-      width: 100%;
-      border-radius: 6px;
-    }
-
+    margin: 20px 0;
+    padding: 0;
+    border-radius: 15px;
+    overflow: hidden; 
+  
+    background: rgba(255,255,255,0.3);
+  }
     .card button {
-      padding: 8px 14px;
-      border: none;
-      border-radius: 5px;
-      background: #007bff;
-      color: white;
-      cursor: pointer;
-    }
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+  
+    background-color: #669a7d; 
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  
+  
+    color: #000000;
+  }
 
     /* -------- Modal -------- */
     .modal {
@@ -76,11 +129,16 @@
 
 <body>
 
-<h2>Recipe Search</h2>
+<h2>NutriPlan</h2>
+
+<div class="image-box">
+ <img src="welcome.jpg" alt="Welcome image">
+ </div>
+	  
 <input id="searchBox" placeholder="Enter food (ex: chicken)">
 <button onclick="searchRecipes()">Search</button>
 
-<button onclick="showSavedRecipes()">View Saved Recipes</button>
+<button onclick="window.location.href='saved.html'">View Saved Recipes</button>
 
 <!-- Cards -->
 <div class="card-container" id="cardContainer"></div>
@@ -109,12 +167,11 @@
     
     <button onclick="saveRecipe()">Save Recipe</button>
 	
-
-
   </div>
 </div>
 
 <script>
+
 const apiKey = "9d6176d44ca441b59f4e89e2efc59118";
 const cardContainer = document.getElementById("cardContainer");
 const modal = document.getElementById("modal");
@@ -128,76 +185,17 @@ let allRecipes = [];
 let activeCard = null;
 
 /* -------- Search Recipes -------- */
-async function searchRecipes() {
-  const q = document.getElementById("searchBox").value;
+function searchRecipes() {
+    const query = document.getElementById("searchBox").value.trim();
+    if (query === "") {
+        alert("Please enter a food to search!");
+        return;
+    }
 
-  const res = await fetch(
-    `https://api.spoonacular.com/recipes/complexSearch?apiKey=${apiKey}&query=${encodeURIComponent(q)}&number=8`
-  );
-
-  const data = await res.json();
-  cardContainer.innerHTML = "";
-
-  data.results.forEach(r => {
-    const card = document.createElement("div");
-    card.className = "card";
-
-    card.innerHTML = `
-      <img src="${r.image}">
-      <h3>${r.title}</h3>
-      <button>Open</button>
-    `;
-
-    card.querySelector("button").onclick = () => openModal(r.id);
-    cardContainer.appendChild(card);
-  });
+    window.location.href = `results.html?q=${encodeURIComponent(query)}`;
 }
 
-/* -------- Modal Logic -------- */
-async function openModal(id) {
-  starRating.value = "0";
-  activeCard = id;
 
-  const res = await fetch(
-    `https://api.spoonacular.com/recipes/${id}/information?apiKey=${apiKey}`
-  );
-
-  const recipe = await res.json();
-
-  modalTitle.textContent = recipe.title;
-  modalImage.src = recipe.image;
-
-  modalIngredients.innerHTML = "";
-  recipe.extendedIngredients.forEach(i => {
-    const li = document.createElement("li");
-    li.textContent = i.original;
-    modalIngredients.appendChild(li);
-  });
-
-  modalText.innerHTML = recipe.instructions || "No instructions available.";
-
-  modal.style.display = "block";
-}
-
-function closeModal() {
-  modal.style.display = "none";
-}
-
-window.onclick = function (e) {
-  if (e.target === modal) closeModal();
-};
-
-/* -------- Load Recipes -------- */
-async function loadRecipes() {
-  try {
-    const res = await fetch("getJSONData.php");
-    const data = await res.json();
-    allRecipes = data.record?.recipes || []; 
-  } catch (err) {
-    console.warn("Could not fetch recipes from JSONBin.", err);
-    allRecipes = [];
-  }
-}
 /* -------- Show Saved Recipes -------- */
 async function showSavedRecipes() {
   await loadRecipes();
@@ -225,65 +223,6 @@ async function showSavedRecipes() {
   });
 }
 
-/* -------- View Saved Recipe -------- */
-function viewSavedRecipe(index) {
-  const r = allRecipes[index];
-
-  modalTitle.textContent = r.recipeID;
-
-  const srcMatch = r.recipePhoto.match(/src="(.*?)"/);
-  modalImage.src = srcMatch ? srcMatch[1] : "";
-
-  modalIngredients.innerHTML = "";
-  r.ingredients.split("\n").forEach(i => {
-    const li = document.createElement("li");
-    li.textContent = i;
-    modalIngredients.appendChild(li);
-  });
-
-  modalText.innerHTML = r.instructions;
-  starRating.value = r.star;
-
-  modal.style.display = "block";
-}
-
-/* -------- Save Recipe -------- */
-async function saveRecipe() {
-  try {
-    await loadRecipes();
-    if (!Array.isArray(allRecipes)) allRecipes = [];
-
-    const recipe = {
-      recipePhoto: `<img src="${modalImage.src}">`,
-      recipeID: modalTitle.textContent,
-      ingredients: [...modalIngredients.children].map(li => li.textContent).join("\n"),
-      instructions: modalText.innerHTML,
-      star: parseInt(starRating.value)
-    };
-
-    allRecipes.push(recipe);
-
-    // Wrap array in an object for JSONBin
-    const payload = { recipes: allRecipes };
-
-    const res = await fetch("putJSONData.php", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const result = await res.json();
-    console.log(result); // Debug response from JSONBin
-
-    if (!res.ok) throw new Error(result.message || "Failed to save recipes");
-
-    alert("Recipe Saved!");
-    closeModal();
-  } catch (err) {
-    console.error(err);
-    alert("Error saving recipe: " + err.message);
-  }
-}
 </script>
 
 </body>
